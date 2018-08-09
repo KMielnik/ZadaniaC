@@ -11,6 +11,9 @@ void test_cases()
 
 	answer = numbers_without_five(4, 17);
 	assert(answer == 12);
+
+	answer = numbers_without_five(48,53);
+	assert(answer == 2);
 }
 
 int main(int argc, char *argv[])
