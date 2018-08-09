@@ -27,9 +27,7 @@ int* Lotto_drawing()
         already_choosen[random_number] = true;
         
         numbers[i] = random_number;
-        printf("%d ",random_number);
     }
-    printf("\n");
 	return numbers;
 }
 

@@ -1,4 +1,3 @@
-#include <assert.h>
 #include "my_functions.c"
 
 int main()
