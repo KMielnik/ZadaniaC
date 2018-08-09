@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include <time.h>
 /** 
 * Function returns an array of 5 elements.
 * Those 5 elements are created randomly in the range 1 - 49.
@@ -9,6 +10,27 @@
 */
 int* Lotto_drawing()
 {
+    srand((unsigned) time(NULL));
+
+    int *numbers = (int*) calloc(5,sizeof(int));
+
+    bool already_choosen[50];
+    for(int i=0;i<49;i++)
+        already_choosen[i] = false;
+    for(int i=0;i<5;i++)
+    {
+        int random_number = rand() % 49 + 1;
+        while(already_choosen[random_number])
+        {
+            random_number = rand() % 49 + 1;
+        }
+        already_choosen[random_number] = true;
+        
+        numbers[i] = random_number;
+        printf("%d ",random_number);
+    }
+    printf("\n");
+	return numbers;
 }
 
 /* Please create test cases for this program. test_cases() function can return void, bool or int. */
