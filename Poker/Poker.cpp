@@ -224,7 +224,6 @@ public:
 		cout << "    \\_" << ((bind == 5) ? "@" : "_") << "_____________" << ((bind == 4) ? "@" : "_") << "___________" << ((bind == 3) ? "@" : "_") << "_/" << endl;
 		cout << endl;
 		cout << "  " << ((players[5].playing) ? (players[5].name) : "      ") << "          " << ((players[4].playing) ? (players[4].name) : "      ") << "         "
-		
 			<< ((players[3].playing) ? (players[3].name) : "    ") << endl;
 		cout << "   $" << setw(4) << ((players[5].playing) ? (players[5].money) : 0) << "          $" << setw(4) << ((players[4].playing) ? (players[4].money) : 0)
 			<< "         $" << setw(4) << ((players[3].playing) ? (players[3].money) : 0) << endl;
@@ -685,24 +684,24 @@ private:
 		}
 	} /*end of evaluateHands() */
 
-	void printWinningHand(int winner)
+	void printPlayersHand(int player)
 	{
 		using std::cout;
 		using std::endl;
 
-		Card winningHand[5];
+		Card playerHand[5];
 		for (int i = 0; i < 3; i++)
-			winningHand[i] = tableCards[bestHand[winner][i]];
+			playerHand[i] = tableCards[bestHand[player][i]];
 
 		for (int i = 0; i < 2; i++)
-			winningHand[i + 3] = players[winner].cards[i];
+			playerHand[i + 3] = players[player].cards[i];
 
-		qsort(winningHand, 5, sizeof(Card), compareCards);
+		qsort(playerHand, 5, sizeof(Card), compareCards);
 
-		cout << "   The winning hand:" << endl;
+		cout << "  " << players[player].name <<" hand:" << endl;
 		cout << "   ___   ___   ___   ___   ___" << endl;
-		cout << "  | " << ranks[winningHand[0].rank] << " | | " << ranks[winningHand[1].rank] << " | | " << ranks[winningHand[2].rank] << " | | " << ranks[winningHand[3].rank] << " | | " << ranks[winningHand[4].rank] << " |" << endl;
-		cout << "  | " << suits[winningHand[0].suit] << " | | " << suits[winningHand[1].suit] << " | | " << suits[winningHand[2].suit] << " | | " << suits[winningHand[3].suit] << " | | " << suits[winningHand[4].suit] << " |" << endl;
+		cout << "  | " << ranks[playerHand[0].rank] << " | | " << ranks[playerHand[1].rank] << " | | " << ranks[playerHand[2].rank] << " | | " << ranks[playerHand[3].rank] << " | | " << ranks[playerHand[4].rank] << " |" << endl;
+		cout << "  | " << suits[playerHand[0].suit] << " | | " << suits[playerHand[1].suit] << " | | " << suits[playerHand[2].suit] << " | | " << suits[playerHand[3].suit] << " | | " << suits[playerHand[4].suit] << " |" << endl;
 		cout << "  |___| |___| |___| |___| |___|" << endl;
 		cout << endl << endl;
 		_sleep(3);
@@ -843,7 +842,17 @@ private:
 				std::cout << "STRAIGHT FLUSH";
 			std::cout << "\n\n";
 
-			printWinningHand(roundWinner);
+			std::cout << "Winners hand\n";
+			printPlayersHand(roundWinner);
+
+			std::cout << "Other hands\n";
+			for (int i = 0; i < players_count; i++)
+			{
+				if(i == roundWinner)
+					continue;
+				printPlayersHand(i);
+				std::cout << "\n";
+			}
 
 			players[roundWinner].money += pot;
 
