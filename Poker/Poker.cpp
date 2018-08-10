@@ -777,6 +777,7 @@ private:
 				winner = getWinner();
 				std::cout << players[winner].name << " wins $" << pot << "\n\n";
 				i++;
+				players[winner].money += pot;
 				continue;
 			}
 
@@ -791,6 +792,7 @@ private:
 				winner = getWinner();
 				std::cout << players[winner].name << " wins $" << pot << "\n\n";
 				i++;
+				players[winner].money += pot;
 				continue;
 			}
 
@@ -805,6 +807,7 @@ private:
 				winner = getWinner();
 				std::cout << players[winner].name << " wins $" << pot << "\n\n";
 				i++;
+				players[winner].money += pot;
 				continue;
 			}
 
@@ -898,6 +901,7 @@ int main()
 	cout << "OK " << name << " let's play some poker!" << endl << endl;
 
 	game1.start(name);
+	
 	sleep(3);
 	return 0;
 }
