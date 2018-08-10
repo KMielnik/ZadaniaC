@@ -224,6 +224,7 @@ public:
 		cout << "    \\_" << ((bind == 5) ? "@" : "_") << "_____________" << ((bind == 4) ? "@" : "_") << "___________" << ((bind == 3) ? "@" : "_") << "_/" << endl;
 		cout << endl;
 		cout << "  " << ((players[5].playing) ? (players[5].name) : "      ") << "          " << ((players[4].playing) ? (players[4].name) : "      ") << "         "
+		
 			<< ((players[3].playing) ? (players[3].name) : "    ") << endl;
 		cout << "   $" << setw(4) << ((players[5].playing) ? (players[5].money) : 0) << "          $" << setw(4) << ((players[4].playing) ? (players[4].money) : 0)
 			<< "         $" << setw(4) << ((players[3].playing) ? (players[3].money) : 0) << endl;
@@ -316,28 +317,52 @@ private:
 			/* human player actions */
 			if (k % players_count == 4 && players[4].round)
 			{
-				if (betOn)
-				{
-					cout << "\t\t\t\t\tYour action: (1) FLOP (3) BET/CALL ";
-					action = readAction();
-					while (action != Flop && action != Bet)
+				if(players[4].money > 0)
+					if (betOn)
 					{
-						cout << "Invalid number pressed." << endl;
 						cout << "\t\t\t\t\tYour action: (1) FLOP (3) BET/CALL ";
 						action = readAction();
+						while (action != Flop && action != Bet)
+						{
+							cout << "Invalid number pressed." << endl;
+							cout << "\t\t\t\t\tYour action: (1) FLOP (3) BET/CALL ";
+							action = readAction();
+						}
 					}
-				}
-				else
-				{
-					cout << "\t\t\t\t\tYour action: (1) FLOP (2) CHECK (3) BET/CALL ";
-					action = readAction();
-					while (action < Flop || action > Bet)
+					else
 					{
-						cout << "Invalid number pressed." << endl;
 						cout << "\t\t\t\t\tYour action: (1) FLOP (2) CHECK (3) BET/CALL ";
 						action = readAction();
+						while (action < Flop || action > Bet)
+						{
+							cout << "Invalid number pressed." << endl;
+							cout << "\t\t\t\t\tYour action: (1) FLOP (2) CHECK (3) BET/CALL ";
+							action = readAction();
+						}
 					}
-				}
+				else
+					if (betOn)
+					{
+						cout << "\t\t\t\t\tYour action: (1) FLOP ";
+						action = readAction();
+						while (action != Flop)
+						{
+							cout << "Invalid number pressed." << endl;
+							cout << "\t\t\t\t\tYour action: (1) FLOP ";
+							action = readAction();
+						}
+					}
+					else
+					{
+						cout << "\t\t\t\t\tYour action: (1) FLOP (2) CHECK ";
+						action = readAction();
+						while (action < Flop || action > Check)
+						{
+							cout << "Invalid number pressed." << endl;
+							cout << "\t\t\t\t\tYour action: (1) FLOP (2) CHECK ";
+							action = readAction();
+						}
+					}
 
 				cout << endl;
 
