@@ -684,25 +684,25 @@ private:
 		}
 	} /*end of evaluateHands() */
 
-	void printPlayersHand(int player)
+	void printPlayersHand(int player, int roundWinner)
 	{
 		using std::cout;
 		using std::endl;
 
 		Card playerHand[5];
 		for (int i = 0; i < 3; i++)
-			playerHand[i] = tableCards[bestHand[player][i]];
+			playerHand[i] = tableCards[bestHand[roundWinner][i]];
 
 		for (int i = 0; i < 2; i++)
 			playerHand[i + 3] = players[player].cards[i];
 
-		qsort(playerHand, 5, sizeof(Card), compareCards);
+		//qsort(playerHand, 5, sizeof(Card), compareCards);
 
 		cout << "  " << players[player].name <<" hand:" << endl;
 		cout << "   ___   ___   ___   ___   ___" << endl;
-		cout << "  | " << ranks[playerHand[0].rank] << " | | " << ranks[playerHand[1].rank] << " | | " << ranks[playerHand[2].rank] << " | | " << ranks[playerHand[3].rank] << " | | " << ranks[playerHand[4].rank] << " |" << endl;
-		cout << "  | " << suits[playerHand[0].suit] << " | | " << suits[playerHand[1].suit] << " | | " << suits[playerHand[2].suit] << " | | " << suits[playerHand[3].suit] << " | | " << suits[playerHand[4].suit] << " |" << endl;
-		cout << "  |___| |___| |___| |___| |___|" << endl;
+		cout << "  | " << ranks[playerHand[0].rank] << " | | " << ranks[playerHand[1].rank] << " | | " << ranks[playerHand[2].rank] << " |*| " << ranks[playerHand[3].rank] << " | | " << ranks[playerHand[4].rank] << " |" << endl;
+		cout << "  | " << suits[playerHand[0].suit] << " | | " << suits[playerHand[1].suit] << " | | " << suits[playerHand[2].suit] << " |*| " << suits[playerHand[3].suit] << " | | " << suits[playerHand[4].suit] << " |" << endl;
+		cout << "  |___| |___| |___|*|___| |___|" << endl;
 		cout << endl << endl;
 		_sleep(3);
 	}
@@ -843,14 +843,14 @@ private:
 			std::cout << "\n\n";
 
 			std::cout << "Winners hand\n";
-			printPlayersHand(roundWinner);
+			printPlayersHand(roundWinner,roundWinner);
 
 			std::cout << "Other hands\n";
 			for (int i = 0; i < players_count; i++)
 			{
 				if(i == roundWinner)
 					continue;
-				printPlayersHand(i);
+				printPlayersHand(i, roundWinner);
 				std::cout << "\n";
 			}
 
