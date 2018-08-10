@@ -275,7 +275,6 @@ private:
 			else
 				return Check;
 		}
-
 		else if (players[playerNum].cards[0].rank < 10 && players[playerNum].cards[1].rank < 10)
 		{
 			if (players[playerNum].cards[0].rank != players[playerNum].cards[1].rank)
@@ -717,6 +716,12 @@ private:
 	{
 		int i = 0;
 
+		for(int i=0;i<players_count;i++)
+		{
+			if(players[i].money <=0)
+				players[i].playing = 0;
+		}
+
 		while (playersLeft() > 1)
 		{
 			/* starting default values*/
@@ -893,6 +898,6 @@ int main()
 	cout << "OK " << name << " let's play some poker!" << endl << endl;
 
 	game1.start(name);
-
+	sleep(3);
 	return 0;
 }
