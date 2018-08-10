@@ -4,14 +4,14 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "label": "build OmitFives",
+            "label": "build Poker",
             "type": "shell",
-            "command": "gcc",
+            "command": "g++",
             "args": [
                 "-o",
-                "Zad6/a.out",
+                "Poker/Poker.out",
                 "-g",
-                "Zad6/OmitFives.cpp"
+                "Poker/Poker.cpp"
             ],
             "group": {
                 "kind": "build",

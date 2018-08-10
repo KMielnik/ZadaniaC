@@ -9,12 +9,12 @@
             "name": "(gdb) Launch",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/Zad6/a.out",
+            "program": "${workspaceFolder}/Poker/Poker.out",
             "args": [],
             "stopAtEntry": false,
-            "cwd": "${workspaceFolder}/Zad6",
+            "cwd": "${workspaceFolder}/Poker",
             "environment": [],
-            "externalConsole": true,
+            "externalConsole": false,
             "MIMode": "gdb",
             "setupCommands": [
                 {
@@ -23,7 +23,7 @@
                     "ignoreFailures": true
                 }
             ],
-            "preLaunchTask": "build OmitFives"
+            "preLaunchTask": "build Poker"
         }
     ]
 }
