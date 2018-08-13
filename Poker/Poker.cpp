@@ -445,7 +445,7 @@ private:
 					}
 					else
 					{
-						bet = (rand() % (players[k % players_count].money - 1) + 1);
+						bet = (rand() % players[k % players_count].money - 1 + 1);
 						pot += bet;
 						players[k % players_count].money -= bet;
 						cout << '\a';
@@ -861,7 +861,7 @@ private:
 			std::cout << "Other hands\n";
 			for (int i = 0; i < players_count; i++)
 			{
-				if(i == roundWinner)
+				if(i == roundWinner || !players[i].playing)
 					continue;
 				printPlayersHand(i, roundWinner);
 				std::cout << "\n";
