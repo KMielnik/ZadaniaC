@@ -438,8 +438,17 @@ private:
 				{
 					if (betOn)
 					{
-						pot += betOn;
-						players[k % players_count].money -= betOn;
+						if(betOn > players[k % players_count].money)
+						{
+							pot += players[k % players_count].money;
+							players[k % players_count].money -= players[k % players_count].money;
+						}
+						else
+						{
+							pot += betOn;
+							players[k % players_count].money -= betOn;
+						}
+		
 						cout << "\t++ " << players[k % players_count].name << " calls!" << endl;
 						players[k % players_count].goodToGo = 1;
 					}
