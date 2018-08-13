@@ -72,10 +72,10 @@ public:
 				cards[i * ranks_count + j].rank = j;
 			}
 		}
-		suits[0] = "D";
-		suits[1] = "S";
-		suits[2] = "H";
-		suits[3] = "C";
+		suits[0] = "Diamonds";
+		suits[1] = "Spades";
+		suits[2] = "Hearts";
+		suits[3] = "Clubs";
 
 		ranks[0] = "2";
 		ranks[1] = "3";
@@ -85,11 +85,11 @@ public:
 		ranks[5] = "7";
 		ranks[6] = "8";
 		ranks[7] = "9";
-		ranks[8] = "T";
-		ranks[9] = "J";
-		ranks[10] = "Q";
-		ranks[11] = "K";
-		ranks[12] = "A";
+		ranks[8] = "10";
+		ranks[9] = "Joker";
+		ranks[10] = "Queen";
+		ranks[11] = "King";
+		ranks[12] = "Ace";
 	}
 
 	void print()
@@ -164,6 +164,8 @@ public:
 		players[3].name = "Edyta";
 		players[4].name = "Marcin";
 		players[5].name = "Kamil";
+		players[6].name = "Tymoteusz";
+		players[7].name = "Patryk";
 
 		players[player_index].name = name;
 
@@ -212,9 +214,9 @@ public:
 
 	void printMoney(char moneyRow[81], int position, int money)
 	{
-		char cMoney[6];
-		sprintf(cMoney, "%d", money);
-		for(int i=0;i<6;i++)
+		char cMoney[8];
+		sprintf(cMoney, "$ %d", money);
+		for(int i=0;i<8;i++)
 		{
 			if(cMoney[i] != '\0')
 			moneyRow[position+i] = cMoney[i];
@@ -240,6 +242,47 @@ public:
 			}
 	}
 
+	int printCard(char table[15][81], int XPosition, int YPosition, Card card)
+	{
+		string cardRank = ranks[card.rank];
+		string cardSuit = suits[card.suit];
+		int rankLength = cardRank.length();
+		int suitLength = cardSuit.length();
+
+		int cardWidth = ((rankLength > suitLength) ? rankLength : suitLength) + 3;		//plus padding
+
+		//upper and lower card edges
+		for (int i=1;i<cardWidth;i++)
+		{
+			table[YPosition    ][XPosition + i] = '_';
+			table[YPosition + 3][XPosition + i] = '_';
+		}
+		//left/right edges
+		for (int i=1;i<=3;i++)
+		{
+			table[YPosition + i][XPosition    ] = '|';
+			table[YPosition + i][XPosition + cardWidth] = '|';
+		}
+
+		printName(table[YPosition + 1], XPosition + 2, cardRank);
+		printName(table[YPosition + 2], XPosition + 2, cardSuit);
+
+		return cardWidth;
+	}
+
+	void printMainTable(char table[15][81], int XPosition, int YPosition)
+	{
+		//print cards to table
+		int position = 3;
+		for(int i=0;i<5;i++)
+		{
+			int cardWidth = 0;
+			if(tableCards[i].rank >=0)
+				cardWidth = printCard(table,XPosition + position,YPosition,tableCards[i]);
+			position+= cardWidth + 2;
+		}
+	}
+
 	void printTable()
 	{
 		//creating table
@@ -254,6 +297,7 @@ public:
 
 		printHalfOfThePlayers(table[0],table[1],true);
 
+		printMainTable(table,4,6);
 
 		printHalfOfThePlayers(table[13],table[14],false);
 
@@ -264,7 +308,7 @@ public:
 	}
 
 private:
-	static const int players_count = 6;
+	static const int players_count = 8;
 	Player players[players_count];
 	Deck deck1;
 	int bind;
@@ -272,8 +316,8 @@ private:
 	enum actions{Flop=1,Check,Bet,Raise};
 	int pot, bet, rational, betOn, winner, maxPoints, roundWinner;
 	enum actions action;
-	int handPoints[6];
-	int bestHand[6][3];
+	int handPoints[players_count];
+	int bestHand[players_count][3];
 	int player_index;
 
 	int playersLeft()
@@ -334,10 +378,10 @@ private:
 		for (int k = 0; k < players_count; k++)
 			players[k].goodToGo = 0;
 
-		for (int k = bind + 1; k < bind + 7; k++)
+		for (int k = bind + 1; k < bind + players_count + 1; k++)
 		{
 			/* human player actions */
-			if (k % players_count == 4 && players[player_index].round)
+			if (k % players_count == player_index && players[player_index].round)
 			{
 				if(players[player_index].money > 0)
 					if (betOn)
@@ -795,9 +839,16 @@ private:
 
 	void printPlayersHand(int player, int roundWinner)
 	{
-		using std::cout;
-		using std::endl;
-
+		//creating cards table
+		char table[5][81];
+		for(int i=0;i<5;i++)
+			for(int j=0;j<=80;j++)
+				if(j==80)
+					table[i][j] = '\n';	
+				else
+					table[i][j] = ' ';
+		
+		//Get cards
 		Card playerHand[5];
 		for (int i = 0; i < 3; i++)
 			playerHand[i] = tableCards[bestHand[roundWinner][i]];
@@ -805,14 +856,21 @@ private:
 		for (int i = 0; i < 2; i++)
 			playerHand[i + 3] = players[player].cards[i];
 
-		//qsort(playerHand, 5, sizeof(Card), compareCards);
 
-		cout << "  " << players[player].name <<" hand:" << endl;
-		cout << "   ___   ___   ___   ___   ___" << endl;
-		cout << "  | " << ranks[playerHand[0].rank] << " | | " << ranks[playerHand[1].rank] << " | | " << ranks[playerHand[2].rank] << " |*| " << ranks[playerHand[3].rank] << " | | " << ranks[playerHand[4].rank] << " |" << endl;
-		cout << "  | " << suits[playerHand[0].suit] << " | | " << suits[playerHand[1].suit] << " | | " << suits[playerHand[2].suit] << " |*| " << suits[playerHand[3].suit] << " | | " << suits[playerHand[4].suit] << " |" << endl;
-		cout << "  |___| |___| |___|*|___| |___|" << endl;
-		cout << endl << endl;
+		//print hand owner name
+		printName(table[0], 3, players[player].name);
+		//print cards to table
+		int position = 3;
+		for(int i=0;i<5;i++)
+		{
+			int cardWidth = printCard(table,position,1,playerHand[i]);
+			position+= cardWidth + 2;
+		}	
+		//printing cards table		
+		for(int i=0;i<5;i++)
+			for(int j=0;j<=80;j++)
+				cout << table[i][j];
+
 		_sleep(3);
 	}
 
