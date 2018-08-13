@@ -3,7 +3,7 @@
 /*                A simple Texas Hold'em Poker simulartion.                 */
 /*                Program runs fine, but gameplay still has some bugs.      */
 /****************************************************************************/
-
+#include <stdio.h>
 #include <iostream>
 #include <iomanip>
 #include <string>
@@ -203,45 +203,64 @@ public:
 		tableCards[4] = deck1.hitme();
 	}
 
+	void printName(char namesRow[81], int position, string name)
+	{
+		const char * cName = name.c_str();
+		for(int i=0;i<name.length();i++)
+			namesRow[position+i] = cName[i];
+	}
+
+	void printMoney(char moneyRow[81], int position, int money)
+	{
+		char cMoney[6];
+		sprintf(cMoney, "%d", money);
+		for(int i=0;i<6;i++)
+		{
+			if(cMoney[i] != '\0')
+			moneyRow[position+i] = cMoney[i];
+		}
+	}
+
+	void printHalfOfThePlayers(char namesRow[81],char moneyRow[81], bool printFirstHalf)
+	{
+		int position = 0;
+		if(printFirstHalf)
+			for(int i=0;i<(players_count/2);i++)
+			{
+				position = ((80 / (players_count / 2)) * i) + 3;
+				printName(namesRow, position, players[i].name);
+				printMoney(moneyRow,position, players[i].money);
+			}
+		else
+			for(int i=(players_count/2);i<players_count;i++)
+			{
+				position = ((80 / (players_count / 2)) * (players_count-i-1)) + 3;
+				printName(namesRow, position, players[i].name);
+				printMoney(moneyRow,position, players[i].money);
+			}
+	}
+
 	void printTable()
 	{
-		using std::cout;
-		using std::endl;
-		using std::setw;
+		//creating table
+		char table[15][81];
+		for(int i=0;i<15;i++)
+			for(int j=0;j<=80;j++)
+				if(j==80)
+					table[i][j] = '\n';	
+				else
+					table[i][j] = ' ';
+		
 
-		cout << "------------------------------------------------------------------------------------------------------------------" << endl;
-		cout << "  " << ((players[0].playing) ? (players[0].name) : "      ") << "         " << ((players[1].playing) ? (players[1].name) : "     ") << "           "
-			<< ((players[2].playing) ? (players[2].name) : "    ") << endl;
-		cout << "   $" << setw(4) << ((players[0].playing) ? (players[0].money) : 0) << "         $" << setw(4) << ((players[1].playing) ? (players[1].money) : 0)
-			<< "           $" << setw(4) << ((players[2].playing) ? (players[2].money) : 0) << endl;
-		cout << "     _____________________________" << endl;
-		cout << "    / " << ((bind == 0) ? "@" : " ") << "            " << ((bind == 1) ? "@" : " ") << "            " << ((bind == 2) ? "@" : " ") << " \\" << endl;
-		cout << "   /  ___   ___   ___   ___   ___  \\" << endl;
-		cout << "   | | " << ((tableCards[0].rank) >= 0 ? ranks[tableCards[0].rank] : " ") << " | | " << ((tableCards[1].rank) >= 0 ? ranks[tableCards[1].rank] : " ") << " | | " << ((tableCards[2].rank) >= 0 ? ranks[tableCards[2].rank] : " ") << " | | "
-			<< ((tableCards[3].rank) >= 0 ? ranks[tableCards[3].rank] : " ") << " | | " << ((tableCards[4].rank) >= 0 ? ranks[tableCards[4].rank] : " ") << " | |" << endl;
-		cout << "   | | " << ((tableCards[0].rank) >= 0 ? suits[tableCards[0].suit] : " ") << " | | " << ((tableCards[1].rank) >= 0 ? suits[tableCards[1].suit] : " ") << " | | " << ((tableCards[2].rank) >= 0 ? suits[tableCards[2].suit] : " ") << " | | "
-			<< ((tableCards[3].rank) >= 0 ? suits[tableCards[3].suit] : " ") << " | | " << ((tableCards[4].rank) >= 0 ? suits[tableCards[4].suit] : " ") << " | |" << endl;
-		cout << "   | |___| |___| |___| |___| |___| |" << endl;
-		cout << "   |                               |" << endl;
-		cout << "   |	       Pot = $" << setw(4) << pot << "         |" << endl;
-		cout << "   \\                               /" << endl;
-		cout << "    \\_" << ((bind == 5) ? "@" : "_") << "_____________" << ((bind == 4) ? "@" : "_") << "___________" << ((bind == 3) ? "@" : "_") << "_/" << endl;
-		cout << endl;
-		cout << "  " << ((players[5].playing) ? (players[5].name) : "      ") << "          " << ((players[4].playing) ? (players[4].name) : "      ") << "         "
-			<< ((players[3].playing) ? (players[3].name) : "    ") << endl;
-		cout << "   $" << setw(4) << ((players[5].playing) ? (players[5].money) : 0) << "          $" << setw(4) << ((players[4].playing) ? (players[4].money) : 0)
-			<< "         $" << setw(4) << ((players[3].playing) ? (players[3].money) : 0) << endl;
-		cout << endl;
-		if (players[player_index].round)
-		{
-			cout << "   Your hand:" << endl;
-			cout << "    ___    ___" << endl;
-			cout << "   | " << ranks[players[player_index].cards[0].rank] << " |  | " << ranks[players[player_index].cards[1].rank] << " |" << endl;
-			cout << "   | " << suits[players[player_index].cards[0].suit] << " |  | " << suits[players[player_index].cards[1].suit] << " |" << endl;
-			cout << "   |___|  |___|" << endl << endl;
-		}
+		printHalfOfThePlayers(table[0],table[1],true);
 
-		_sleep(3);
+
+		printHalfOfThePlayers(table[13],table[14],false);
+
+		//printing table		
+		for(int i=0;i<15;i++)
+			for(int j=0;j<=80;j++)
+				cout << table[i][j];
 	}
 
 private:
@@ -982,7 +1001,8 @@ int main()
 	cout << "   #    ###### #    #   #      #        ####  #    # ###### #    #" << endl << endl;
 
 	cout << "Please type your name: ";
-	std::cin >> name;
+	//std::cin >> name;
+	name="Karolek";
 
 	cout << "OK " << name << " let's play some poker!" << endl << endl;
 
