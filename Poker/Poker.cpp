@@ -9,12 +9,11 @@
 #include <string>
 #include <cstdlib>
 #include <ctime>
-#ifdef __linux__ 
+#ifdef __linux__
 #include <unistd.h>
 #elif _WIN32
 #include <windows.h>
 #endif
-
 
 using namespace std;
 
@@ -28,13 +27,14 @@ std::string ranks[ranks_count];
 void press_Enter()
 {
 	printf("\nPress Enter to continue.\n");
-	while (getchar() != '\n');
+	while (getchar() != '\n')
+		;
 }
 
 void _sleep(int time)
 {
-#ifdef __linux__ 
-	usleep(time*100000);
+#ifdef __linux__
+	usleep(time * 100000);
 #elif _WIN32
 	Sleep(time);
 #endif
@@ -42,7 +42,7 @@ void _sleep(int time)
 
 class Card
 {
-public:
+  public:
 	int suit;
 	int rank;
 };
@@ -55,13 +55,13 @@ int compareCards(const void *card1, const void *card2)
 class Deck
 {
 
-private:
+  private:
 	int top;
 	static const int card_tally = 52;
 
 	Card cards[card_tally];
 
-public:
+  public:
 	Deck()
 	{
 		for (int i = 0; i < suits_count; i++)
@@ -136,7 +136,7 @@ public:
 
 class Player
 {
-public:
+  public:
 	std::string name;
 	int money;
 	Card cards[2];
@@ -147,7 +147,7 @@ public:
 
 class PokerGame
 {
-public:
+  public:
 	void start(const std::string &name)
 	{
 		for (int i = 0; i < players_count; i++)
@@ -158,20 +158,27 @@ public:
 
 		player_index = 4;
 
-		players[0].name = "Wojciech";
-		players[1].name = "Tristan";
-		players[2].name = "Michal";
-		players[3].name = "Edyta";
-		players[4].name = "Marcin";
-		players[5].name = "Kamil";
-		players[6].name = "Tymoteusz";
-		players[7].name = "Patryk";
+		string names[12];
+		names[0] = "Wojciech";
+		names[1] = "Tristan";
+		names[2] = "Michal";
+		names[3] = "Edyta";
+		names[4] = "Marcin";
+		names[5] = "Kamil";
+		names[6] = "Tymoteusz";
+		names[7] = "Patryk";
+		names[8] = "Norbert";
+		names[9] = "Hubert";
+		names[10] = "Krzysztof";
+		names[11] = "Iga";
+
+		for (int i = 0; i < players_count; i++)
+			players[i].name = names[i];
 
 		players[player_index].name = name;
 
 		startGame();
 	}
-
 
 	void deal()
 	{
@@ -207,60 +214,91 @@ public:
 
 	void printName(char namesRow[81], int position, string name)
 	{
-		const char * cName = name.c_str();
-		for(int i=0;i<name.length();i++)
-			namesRow[position+i] = cName[i];
+		const char *cName = name.c_str();
+		for (int i = 0; i < name.length(); i++)
+			namesRow[position + i] = cName[i];
 	}
 
 	void printMoney(char moneyRow[81], int position, int money)
 	{
 		char cMoney[8];
-		sprintf(cMoney, "$ %d", money);
-		for(int i=0;i<8;i++)
+		sprintf(cMoney, "$ %d\0", money);
+		for (int i = 0; i < 8; i++)
 		{
-			if(cMoney[i] != '\0')
-			moneyRow[position+i] = cMoney[i];
+			if (cMoney[i] != '\0')
+				moneyRow[position + i] = cMoney[i];
+			else
+				break;
 		}
 	}
 
-	void printHalfOfThePlayers(char namesRow[81],char moneyRow[81], bool printFirstHalf)
+	void printHalfOfThePlayers(char namesRow[81], char moneyRow[81], bool printFirstHalf)
 	{
 		int position = 0;
-		if(printFirstHalf)
-			for(int i=0;i<(players_count/2);i++)
+		if (printFirstHalf)
+			for (int i = 0; i < ((players_count + 1) / 2); i++)
 			{
-				position = ((80 / (players_count / 2)) * i) + 3;
-				printName(namesRow, position, players[i].name);
-				printMoney(moneyRow,position, players[i].money);
+				if (players[i].playing)
+				{
+					position = ((80 / ((players_count + 1) / 2)) * i) + 3;
+					printName(namesRow, position, players[i].name);
+					printMoney(moneyRow, position, players[i].money);
+				}
 			}
 		else
-			for(int i=(players_count/2);i<players_count;i++)
+			for (int i = ((players_count + 1) / 2); i < players_count; i++)
 			{
-				position = ((80 / (players_count / 2)) * (players_count-i-1)) + 3;
-				printName(namesRow, position, players[i].name);
-				printMoney(moneyRow,position, players[i].money);
+				if (players[i].playing)
+				{
+					position = ((80 / ((players_count + 1) / 2)) * (players_count - i - 1)) + 3;
+					printName(namesRow, position, players[i].name);
+					printMoney(moneyRow, position, players[i].money);
+				}
 			}
 	}
 
-	int printCard(char table[15][81], int XPosition, int YPosition, Card card)
+	int checkCardWidth(Card card)
 	{
 		string cardRank = ranks[card.rank];
 		string cardSuit = suits[card.suit];
 		int rankLength = cardRank.length();
 		int suitLength = cardSuit.length();
 
-		int cardWidth = ((rankLength > suitLength) ? rankLength : suitLength) + 3;		//plus padding
+		return ((rankLength > suitLength) ? rankLength : suitLength) + 3; //card width
+	}
+
+	int checkTableWidth()
+	{
+		int cardsTotalWidth = 0;
+		for (int i = 0; i < 5; i++)
+		{
+			int cardWidth = 0;
+			if (tableCards[i].rank >= 0)
+			{
+				cardWidth = checkCardWidth(tableCards[i]);
+				cardsTotalWidth += cardWidth + 2;
+			}
+		}
+		return cardsTotalWidth + 2;
+	}
+
+	int printCard(char table[15][81], int XPosition, int YPosition, Card card)
+	{
+		string cardRank = ranks[card.rank];
+		string cardSuit = suits[card.suit];
+
+		int cardWidth = checkCardWidth(card); //plus padding
 
 		//upper and lower card edges
-		for (int i=1;i<cardWidth;i++)
+		for (int i = 1; i < cardWidth; i++)
 		{
-			table[YPosition    ][XPosition + i] = '_';
+			table[YPosition][XPosition + i] = '_';
 			table[YPosition + 3][XPosition + i] = '_';
 		}
 		//left/right edges
-		for (int i=1;i<=3;i++)
+		for (int i = 1; i <= 3; i++)
 		{
-			table[YPosition + i][XPosition    ] = '|';
+			table[YPosition + i][XPosition] = '|';
 			table[YPosition + i][XPosition + cardWidth] = '|';
 		}
 
@@ -270,50 +308,99 @@ public:
 		return cardWidth;
 	}
 
-	void printMainTable(char table[15][81], int XPosition, int YPosition)
+	int checkActiveTableWidth(char table[15][81])
 	{
+		int activeGameWidth = 80;
+		for (int i = 79; i >= 0; i--)
+			if (table[0][i] == ' ')
+				activeGameWidth--;
+			else
+				break;
+
+		return activeGameWidth;
+	}
+
+	void printMainTable(char table[15][81], int YPosition)
+	{
+		int tableWidth = checkTableWidth();
+		int activeGameWidth = checkActiveTableWidth(table);
+		int XPosition = (activeGameWidth / 2) - (tableWidth / 2) + 3;
+		XPosition = (XPosition > 2) ? XPosition : 3;
+
 		//print cards to table
-		int position = 3;
-		for(int i=0;i<5;i++)
+		int cardsTotalWidth = 0;
+		for (int i = 0; i < 5; i++)
 		{
 			int cardWidth = 0;
-			if(tableCards[i].rank >=0)
-				cardWidth = printCard(table,XPosition + position,YPosition,tableCards[i]);
-			position+= cardWidth + 2;
+			if (tableCards[i].rank >= 0)
+			{
+				cardWidth = printCard(table, XPosition + cardsTotalWidth, YPosition + 2, tableCards[i]);
+				cardsTotalWidth += cardWidth + 2;
+			}
 		}
+
+		cardsTotalWidth -= 2;
+		cardsTotalWidth = cardsTotalWidth >= 10 ? cardsTotalWidth : 10; //min width 10
+
+		//printing table around cards
+		for (int i = 0; i <= cardsTotalWidth; i++)
+		{
+			table[YPosition][XPosition + i] = '_';
+			table[YPosition + 8][XPosition + i] = '_';
+		}
+
+		for (int i = 0; i < 6; i++)
+		{
+			table[YPosition + i + 2][XPosition - 2] = '|';
+			table[YPosition + i + 2][XPosition + cardsTotalWidth + 2] = '|';
+		}
+		table[YPosition + 1][XPosition - 1] = '/';
+		table[YPosition + 1][XPosition + cardsTotalWidth + 1] = '\\';
+		table[YPosition + 8][XPosition + cardsTotalWidth + 1] = '/';
+		table[YPosition + 8][XPosition - 1] = '\\';
+
+		//printing pot
+		char potCString[10];
+		sprintf(potCString, "%d", pot);
+		string potString = string("Pot = $ ") + string(potCString);
+		int potStart = ((cardsTotalWidth + 2) / 2) - (potString.length() / 2);
+		printName(table[9], XPosition + potStart, potString);
 	}
 
 	void printTable()
 	{
 		//creating table
 		char table[15][81];
-		for(int i=0;i<15;i++)
-			for(int j=0;j<=80;j++)
-				if(j==80)
-					table[i][j] = '\n';	
+		for (int i = 0; i < 15; i++)
+			for (int j = 0; j <= 80; j++)
+				if (j == 80)
+					table[i][j] = '\n';
 				else
 					table[i][j] = ' ';
-		
 
-		printHalfOfThePlayers(table[0],table[1],true);
+		printHalfOfThePlayers(table[0], table[1], true);
+		printMainTable(table, 2);
+		printHalfOfThePlayers(table[13], table[14], false);
 
-		printMainTable(table,4,6);
-
-		printHalfOfThePlayers(table[13],table[14],false);
-
-		//printing table		
-		for(int i=0;i<15;i++)
-			for(int j=0;j<=80;j++)
+		//printing table
+		for (int i = 0; i < 15; i++)
+			for (int j = 0; j <= 80; j++)
 				cout << table[i][j];
 	}
 
-private:
-	static const int players_count = 8;
+  private:
+	static const int players_count = 12;
 	Player players[players_count];
 	Deck deck1;
 	int bind;
 	Card tableCards[5];
-	enum actions{Flop=1,Check,Bet,Raise};
+	enum actions
+	{
+		Flop = 1,
+		Check,
+		Bet,
+		Raise
+	};
 	int pot, bet, rational, betOn, winner, maxPoints, roundWinner;
 	enum actions action;
 	int handPoints[players_count];
@@ -365,13 +452,13 @@ private:
 	{
 		int iAction;
 		cin >> iAction;
-		return (actions) iAction;
+		return (actions)iAction;
 	}
 
 	void takeBets()
 	{
-		using std::cout;
 		using std::cin;
+		using std::cout;
 		using std::endl;
 
 		betOn = 0;
@@ -383,7 +470,7 @@ private:
 			/* human player actions */
 			if (k % players_count == player_index && players[player_index].round)
 			{
-				if(players[player_index].money > 0)
+				if (players[player_index].money > 0)
 					if (betOn)
 					{
 						cout << "\t\t\t\t\tYour action: (1) FLOP (3) BET/CALL (4) RAISE ";
@@ -406,29 +493,28 @@ private:
 							action = readAction();
 						}
 					}
-				else
-					if (betOn)
+				else if (betOn)
+				{
+					cout << "\t\t\t\t\tYour action: (1) FLOP ";
+					action = readAction();
+					while (action != Flop)
 					{
+						cout << "Invalid number pressed." << endl;
 						cout << "\t\t\t\t\tYour action: (1) FLOP ";
 						action = readAction();
-						while (action != Flop)
-						{
-							cout << "Invalid number pressed." << endl;
-							cout << "\t\t\t\t\tYour action: (1) FLOP ";
-							action = readAction();
-						}
 					}
-					else
+				}
+				else
+				{
+					cout << "\t\t\t\t\tYour action: (1) FLOP (2) CHECK ";
+					action = readAction();
+					while (action < Flop || action > Check)
 					{
+						cout << "Invalid number pressed." << endl;
 						cout << "\t\t\t\t\tYour action: (1) FLOP (2) CHECK ";
 						action = readAction();
-						while (action < Flop || action > Check)
-						{
-							cout << "Invalid number pressed." << endl;
-							cout << "\t\t\t\t\tYour action: (1) FLOP (2) CHECK ";
-							action = readAction();
-						}
 					}
+				}
 
 				cout << endl;
 
@@ -446,7 +532,7 @@ private:
 				{
 					if (betOn)
 					{
-						if(betOn > players[player_index].money)
+						if (betOn > players[player_index].money)
 						{
 							pot += players[player_index].money;
 							players[player_index].money -= players[player_index].money;
@@ -468,7 +554,8 @@ private:
 							cout << "Invalid number to bet." << endl;
 							cout << "How much do you want to bet: ";
 							cin >> bet;
-							cout << endl << endl;
+							cout << endl
+								 << endl;
 						}
 						pot += bet;
 						players[player_index].money -= bet;
@@ -480,7 +567,7 @@ private:
 				}
 				else
 				{
-					if(betOn > players[player_index].money)
+					if (betOn > players[player_index].money)
 					{
 						cout << "You can't raise, bet is already bigger than your money: ";
 						pot += players[player_index].money;
@@ -493,12 +580,13 @@ private:
 						int raise;
 						cout << "How much do you want to raise: ";
 						cin >> raise;
-						while ((bet+raise) > players[player_index].money || raise < 0)
+						while ((bet + raise) > players[player_index].money || raise < 0)
 						{
 							cout << "Invalid number to raise." << endl;
 							cout << "How much do you want to raise: ";
 							cin >> raise;
-							cout << endl << endl;
+							cout << endl
+								 << endl;
 						}
 						bet += raise;
 						pot += bet;
@@ -506,7 +594,7 @@ private:
 						betOn = bet;
 						players[player_index].goodToGo = 1;
 						cout << "\t+ " << players[player_index].name << " raises " << raise << ". New bet: " << betOn << "$\n";
-					}						
+					}
 				}
 			}
 			/* computers actions */
@@ -523,7 +611,7 @@ private:
 				}
 				else
 				{
-					action = (actions) (rand() % 4 + 1);
+					action = (actions)(rand() % 4 + 1);
 				}
 				if (action == Flop)
 				{
@@ -539,7 +627,7 @@ private:
 				{
 					if (betOn)
 					{
-						if(betOn > players[k % players_count].money)
+						if (betOn > players[k % players_count].money)
 						{
 							pot += players[k % players_count].money;
 							players[k % players_count].money -= players[k % players_count].money;
@@ -549,17 +637,16 @@ private:
 							pot += betOn;
 							players[k % players_count].money -= betOn;
 						}
-		
+
 						cout << "\t++ " << players[k % players_count].name << " calls!" << endl;
 						players[k % players_count].goodToGo = 1;
 					}
 					else
 					{
-						if(players[k % players_count].money == 1)
+						if (players[k % players_count].money == 1)
 							bet = 1;
 						else
-							bet = (rand() % (players[k % players_count].money
-							 - 1) + 1);
+							bet = (rand() % (players[k % players_count].money - 1) + 1);
 						pot += bet;
 						players[k % players_count].money -= bet;
 						cout << '\a';
@@ -570,19 +657,19 @@ private:
 				}
 				else
 				{
-					if(betOn > players[k % players_count].money)
+					if (betOn > players[k % players_count].money)
 					{
 						pot += players[k % players_count].money;
 						players[k % players_count].money -= players[k % players_count].money;
 					}
 					else
 					{
-						int raise = rand() % (players[k % players_count].money+1-betOn);
+						int raise = rand() % (players[k % players_count].money + 1 - betOn);
 						betOn += raise;
 						pot += betOn;
 						players[k % players_count].money -= betOn;
 					}
-					
+
 					cout << "\t+++ " << players[k % players_count].name << " raises! New bet:" << betOn << endl;
 					players[k % players_count].goodToGo = 1;
 				}
@@ -605,7 +692,8 @@ private:
 							cout << "Invalid number pressed." << endl;
 							cout << "\t\t\t\t\tYour action: (1) FLOP (3) BET/CALL ";
 							action = readAction();
-							cout << endl << endl;
+							cout << endl
+								 << endl;
 						}
 						if (action == Flop)
 						{
@@ -614,16 +702,16 @@ private:
 						}
 						else
 						{
-							if(betOn > players[k % players_count].money)
-						{
-							pot += players[k % players_count].money;
-							players[k % players_count].money -= players[k % players_count].money;
-						}
-						else
-						{
-							pot += betOn;
-							players[k % players_count].money -= betOn;
-						}
+							if (betOn > players[k % players_count].money)
+							{
+								pot += players[k % players_count].money;
+								players[k % players_count].money -= players[k % players_count].money;
+							}
+							else
+							{
+								pot += betOn;
+								players[k % players_count].money -= betOn;
+							}
 							players[player_index].goodToGo = 1;
 
 							cout << "\t+ " << players[player_index].name << " bets " << betOn << "$\n";
@@ -635,7 +723,7 @@ private:
 				{
 					if (players[k % players_count].round == 0 || players[k % players_count].goodToGo == 1)
 						continue;
-					action = (actions) (rand() % 2 + 1);
+					action = (actions)(rand() % 2 + 1);
 					if (action == Flop)
 					{
 						players[k % players_count].round = 0;
@@ -644,7 +732,7 @@ private:
 					else
 					{
 
-						if(betOn > players[k % players_count].money)
+						if (betOn > players[k % players_count].money)
 						{
 							pot += players[k % players_count].money;
 							players[k % players_count].money -= players[k % players_count].money;
@@ -767,7 +855,7 @@ private:
 			if (hand[k].rank == hand[k + 1].rank)
 			{
 				pairs++;
-				if (hand[k].rank>high)
+				if (hand[k].rank > high)
 					high = hand[k].rank;
 			}
 
@@ -791,7 +879,6 @@ private:
 			hand[i + 3] = players[player].cards[i];
 
 		return getScore(hand);
-
 	}
 
 	void evaluateHands()
@@ -805,7 +892,8 @@ private:
 			{
 				stack[0] = -1; /* -1 is not considered as part of the set */
 				k = 0;
-				while (1) {
+				while (1)
+				{
 					if (stack[k] < 4)
 					{
 						stack[k + 1] = stack[k] + 1;
@@ -832,7 +920,6 @@ private:
 						}
 					}
 				}
-
 			}
 		}
 	} /*end of evaluateHands() */
@@ -841,13 +928,13 @@ private:
 	{
 		//creating cards table
 		char table[5][81];
-		for(int i=0;i<5;i++)
-			for(int j=0;j<=80;j++)
-				if(j==80)
-					table[i][j] = '\n';	
+		for (int i = 0; i < 5; i++)
+			for (int j = 0; j <= 80; j++)
+				if (j == 80)
+					table[i][j] = '\n';
 				else
 					table[i][j] = ' ';
-		
+
 		//Get cards
 		Card playerHand[5];
 		for (int i = 0; i < 3; i++)
@@ -856,19 +943,18 @@ private:
 		for (int i = 0; i < 2; i++)
 			playerHand[i + 3] = players[player].cards[i];
 
-
 		//print hand owner name
 		printName(table[0], 3, players[player].name);
 		//print cards to table
 		int position = 3;
-		for(int i=0;i<5;i++)
+		for (int i = 0; i < 5; i++)
 		{
-			int cardWidth = printCard(table,position,1,playerHand[i]);
-			position+= cardWidth + 2;
-		}	
-		//printing cards table		
-		for(int i=0;i<5;i++)
-			for(int j=0;j<=80;j++)
+			int cardWidth = printCard(table, position, 1, playerHand[i]);
+			position += cardWidth + 2;
+		}
+		//printing cards table
+		for (int i = 0; i < 5; i++)
+			for (int j = 0; j <= 80; j++)
 				cout << table[i][j];
 
 		_sleep(3);
@@ -879,9 +965,9 @@ private:
 	{
 		int i = 0;
 
-		for(int i=0;i<players_count;i++)
+		for (int i = 0; i < players_count; i++)
 		{
-			if(players[i].money <=0)
+			if (players[i].money <= 0)
 				players[i].playing = 0;
 		}
 
@@ -889,7 +975,7 @@ private:
 		{
 			/* starting default values*/
 			for (int z = 0; z < players_count; z++)
-				if (players[z].money<1)
+				if (players[z].money < 1)
 				{
 					players[z].playing = 0;
 					players[z].round = 0;
@@ -902,7 +988,7 @@ private:
 			}
 			for (int x = 0; x < players_count; x++)
 			{
-				for (int y = 0; y<3; y++)
+				for (int y = 0; y < 3; y++)
 				{
 					bestHand[x][y] = -1;
 				}
@@ -1019,12 +1105,12 @@ private:
 			std::cout << "\n\n";
 
 			std::cout << "Winners hand\n";
-			printPlayersHand(roundWinner,roundWinner);
+			printPlayersHand(roundWinner, roundWinner);
 
 			std::cout << "Other hands\n";
 			for (int i = 0; i < players_count; i++)
 			{
-				if(i == roundWinner || !players[i].playing)
+				if (i == roundWinner || !players[i].playing)
 					continue;
 				printPlayersHand(i, roundWinner);
 				std::cout << "\n";
@@ -1034,10 +1120,8 @@ private:
 
 			i++;
 		}
-
 	}
 };
-
 
 int main()
 {
@@ -1049,23 +1133,26 @@ int main()
 	using std::cout;
 	using std::endl;
 
-	cout << "Welcome to..." << endl << endl;
+	cout << "Welcome to..." << endl
+		 << endl;
 	cout << "#######                        ###### " << endl;
 	cout << "   #    ###### #    # #####    #     #  ####  #    # ###### #####" << endl;
 	cout << "   #    #       #  #    #      #     # #    # #   #  #      #    #" << endl;
 	cout << "   #    #####    ##     #      ######  #    # ####   #####  #    #" << endl;
 	cout << "   #    #        ##     #      #       #    # #  #   #      #####" << endl;
 	cout << "   #    #       #  #    #      #       #    # #   #  #      #   #" << endl;
-	cout << "   #    ###### #    #   #      #        ####  #    # ###### #    #" << endl << endl;
+	cout << "   #    ###### #    #   #      #        ####  #    # ###### #    #" << endl
+		 << endl;
 
 	cout << "Please type your name: ";
 	//std::cin >> name;
-	name="Karolek";
+	name = "Karolek";
 
-	cout << "OK " << name << " let's play some poker!" << endl << endl;
+	cout << "OK " << name << " let's play some poker!" << endl
+		 << endl;
 
 	game1.start(name);
-	
+
 	sleep(3);
 	return 0;
 }
