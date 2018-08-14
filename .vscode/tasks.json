@@ -17,6 +17,21 @@
                 "kind": "build",
                 "isDefault": true
             }
+        },
+        {
+            "label": "build Client",
+            "type": "shell",
+            "command": "g++",
+            "args": [
+                "-o",
+                "ClientServer/Client.out",
+                "-g",
+                "ClientServer/Client.cpp"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
         }
     ]
 }
