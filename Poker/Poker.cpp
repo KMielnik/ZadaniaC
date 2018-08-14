@@ -173,7 +173,7 @@ class PokerGame
 		names[11] = "Iga";
 
 		for (int i = 0; i < players_count; i++)
-			players[i].name = names[i];
+			players[i].name = names[i % 12];
 
 		players[player_index].name = name;
 
@@ -212,27 +212,32 @@ class PokerGame
 		tableCards[4] = deck1.hitme();
 	}
 
-	void printName(char namesRow[81], int position, string name)
+	void printName(char namesRow[], int position, string name)
 	{
 		const char *cName = name.c_str();
 		for (int i = 0; i < name.length(); i++)
 			namesRow[position + i] = cName[i];
 	}
 
-	void printMoney(char moneyRow[81], int position, int money)
+	void printMoney(char moneyRow[], int position, int money)
 	{
 		char cMoney[8];
-		sprintf(cMoney, "$ %d\0", money);
+		sprintf(cMoney, "$ %d|", money);
 		for (int i = 0; i < 8; i++)
 		{
-			if (cMoney[i] != '\0')
+			if (cMoney[i] != '|')
 				moneyRow[position + i] = cMoney[i];
 			else
 				break;
 		}
 	}
 
-	void printHalfOfThePlayers(char namesRow[81], char moneyRow[81], bool printFirstHalf)
+	void printBindToken(char namesRow[], int position)
+	{
+		namesRow[position] = '@';
+	}
+
+	void printHalfOfThePlayers(char namesRow[], char moneyRow[], bool printFirstHalf)
 	{
 		int position = 0;
 		if (printFirstHalf)
@@ -242,6 +247,7 @@ class PokerGame
 				{
 					position = ((80 / ((players_count + 1) / 2)) * i) + 3;
 					printName(namesRow, position, players[i].name);
+					if(bind==i) printBindToken(namesRow,position-1);
 					printMoney(moneyRow, position, players[i].money);
 				}
 			}
@@ -252,6 +258,7 @@ class PokerGame
 				{
 					position = ((80 / ((players_count + 1) / 2)) * (players_count - i - 1)) + 3;
 					printName(namesRow, position, players[i].name);
+					if(bind==i) printBindToken(namesRow,position-1);
 					printMoney(moneyRow, position, players[i].money);
 				}
 			}
@@ -282,7 +289,7 @@ class PokerGame
 		return cardsTotalWidth + 2;
 	}
 
-	int printCard(char table[15][81], int XPosition, int YPosition, Card card)
+	int printCard(char table[][81], int XPosition, int YPosition, Card card)
 	{
 		string cardRank = ranks[card.rank];
 		string cardSuit = suits[card.suit];
@@ -308,7 +315,7 @@ class PokerGame
 		return cardWidth;
 	}
 
-	int checkActiveTableWidth(char table[15][81])
+	int checkActiveTableWidth(char table[][81])
 	{
 		int activeGameWidth = 80;
 		for (int i = 79; i >= 0; i--)
@@ -320,7 +327,7 @@ class PokerGame
 		return activeGameWidth;
 	}
 
-	void printMainTable(char table[15][81], int YPosition)
+	void printMainTable(char table[][81], int YPosition)
 	{
 		int tableWidth = checkTableWidth();
 		int activeGameWidth = checkActiveTableWidth(table);
@@ -367,11 +374,25 @@ class PokerGame
 		printName(table[9], XPosition + potStart, potString);
 	}
 
+	void printPlayersTwoCards(char table[][81], int YPosition)
+	{
+		printName(table[YPosition],3,"Your hand:");
+
+		int cardXPosition = 3;
+		for(int i=0;i<2;i++)
+		{
+			Card actualCard = players[player_index].cards[i];
+			int cardsWidth = checkCardWidth(actualCard);
+			printCard(table,cardXPosition,17,actualCard);
+			cardXPosition += cardsWidth + 3;
+		}
+	}
+
 	void printTable()
 	{
 		//creating table
-		char table[15][81];
-		for (int i = 0; i < 15; i++)
+		char table[22][81];
+		for (int i = 0; i < 22; i++)
 			for (int j = 0; j <= 80; j++)
 				if (j == 80)
 					table[i][j] = '\n';
@@ -381,18 +402,20 @@ class PokerGame
 		printHalfOfThePlayers(table[0], table[1], true);
 		printMainTable(table, 2);
 		printHalfOfThePlayers(table[13], table[14], false);
+		if(players[player_index].round)
+			printPlayersTwoCards(table,16);
 
 		//printing table
-		for (int i = 0; i < 15; i++)
+		for (int i = 0; i < 22; i++)
 			for (int j = 0; j <= 80; j++)
 				cout << table[i][j];
 	}
 
   private:
-	static const int players_count = 12;
+	static const int players_count = 13;
 	Player players[players_count];
 	Deck deck1;
-	int bind;
+	int bind = 0;
 	Card tableCards[5];
 	enum actions
 	{
@@ -473,45 +496,45 @@ class PokerGame
 				if (players[player_index].money > 0)
 					if (betOn)
 					{
-						cout << "\t\t\t\t\tYour action: (1) FLOP (3) BET/CALL (4) RAISE ";
+						cout << "\t\t\t\tYour action: (1) FLOP (3) BET/CALL (4) RAISE ";
 						action = readAction();
 						while (action != Flop && action != Bet && action != Raise)
 						{
 							cout << "Invalid number pressed." << endl;
-							cout << "\t\t\t\t\tYour action: (1) FLOP (3) BET/CALL (4) RAISE ";
+							cout << "\t\t\t\tYour action: (1) FLOP (3) BET/CALL (4) RAISE ";
 							action = readAction();
 						}
 					}
 					else
 					{
-						cout << "\t\t\t\t\tYour action: (1) FLOP (2) CHECK (3) BET/CALL ";
+						cout << "\t\t\t\tYour action: (1) FLOP (2) CHECK (3) BET/CALL ";
 						action = readAction();
 						while (action < Flop || action > Bet)
 						{
 							cout << "Invalid number pressed." << endl;
-							cout << "\t\t\t\t\tYour action: (1) FLOP (2) CHECK (3) BET/CALL ";
+							cout << "\t\t\t\tYour action: (1) FLOP (2) CHECK (3) BET/CALL ";
 							action = readAction();
 						}
 					}
 				else if (betOn)
 				{
-					cout << "\t\t\t\t\tYour action: (1) FLOP ";
+					cout << "\t\t\t\tYour action: (1) FLOP ";
 					action = readAction();
 					while (action != Flop)
 					{
 						cout << "Invalid number pressed." << endl;
-						cout << "\t\t\t\t\tYour action: (1) FLOP ";
+						cout << "\t\t\t\tYour action: (1) FLOP ";
 						action = readAction();
 					}
 				}
 				else
 				{
-					cout << "\t\t\t\t\tYour action: (1) FLOP (2) CHECK ";
+					cout << "\t\t\t\tYour action: (1) FLOP (2) CHECK ";
 					action = readAction();
 					while (action < Flop || action > Check)
 					{
 						cout << "Invalid number pressed." << endl;
-						cout << "\t\t\t\t\tYour action: (1) FLOP (2) CHECK ";
+						cout << "\t\t\t\tYour action: (1) FLOP (2) CHECK ";
 						action = readAction();
 					}
 				}
@@ -1003,6 +1026,11 @@ class PokerGame
 			}
 
 			bind = i % players_count;
+			while (players[bind].playing == false)
+			{
+				i++;
+				bind = i % players_count;
+			}
 
 			/* paying bind */
 			pot = 20;
