@@ -19,14 +19,14 @@
             }
         },
         {
-            "label": "build Client",
+            "label": "build Server",
             "type": "shell",
-            "command": "g++",
+            "command": "gcc",
             "args": [
                 "-o",
-                "ClientServer/Client.out",
+                "Epoll/Server",
                 "-g",
-                "ClientServer/Client.cpp"
+                "Epoll/Server.c"
             ],
             "group": {
                 "kind": "build",

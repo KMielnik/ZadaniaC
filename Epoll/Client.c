@@ -6,6 +6,7 @@
 #include <strings.h>
 #include <string.h>
 #include <unistd.h>
+#include <fcntl.h>
 #include <netdb.h>
 #include "error.h"
 
@@ -13,7 +14,7 @@ int connectToServer(char *hostname)
 {
     struct sockaddr_in serverAddress;
 
-    int portNumber = 3456;
+    int portNumber = 72393;
     int clientSocket = socket(AF_INET, SOCK_STREAM, 0);
 
     if (clientSocket < 0)
@@ -30,27 +31,39 @@ int connectToServer(char *hostname)
           server->h_length);
     serverAddress.sin_port = htons(portNumber);
 
-    if (connect(clientSocket, (const struct sockaddr *) &serverAddress, sizeof(serverAddress)) < 0)
+    if (connect(clientSocket, (const struct sockaddr *)&serverAddress, sizeof(serverAddress)) < 0)
         error("ERROR connecting");
 
     return clientSocket;
 }
 
-
-
-int main()
+int main(int argc, char *argv[])
 {
     char buffer[256];
     int charactersWritten;
     int clientSocket = connectToServer("localhost");
-    printf("Enter message: ");
-    bzero(buffer,256);
-    fgets(buffer,255,stdin);
-    charactersWritten = write(clientSocket,buffer,strlen(buffer));
-    if (charactersWritten <0)
-        error("ERROR writing to socket");
-    
 
-    
+    bzero(buffer, 256);
+    char *nickname = argv[1];
+
+    write(clientSocket, nickname, strlen(nickname));
+
+    while (1)
+    {
+        bzero(buffer, 256);
+        printf("%s(you): \n",nickname);
+        fgets(buffer,255,stdin);
+        if(buffer[0]=='q')
+            break;
+        write(clientSocket, buffer, strlen(buffer));
+        bzero(buffer, 256);
+        read(clientSocket, buffer, 255);
+        printf("Odebrano: %s\n", buffer);
+    }
+
+    write(clientSocket, "q", strlen("q"));
+
+    close(clientSocket);
+
     return 0;
 }

@@ -9,10 +9,10 @@
             "name": "(gdb) Launch",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/Poker/Poker.out",
+            "program": "${workspaceFolder}/Epoll/Server",
             "args": [],
             "stopAtEntry": false,
-            "cwd": "${workspaceFolder}/Poker",
+            "cwd": "${workspaceFolder}/Epoll",
             "environment": [],
             "externalConsole": false,
             "MIMode": "gdb",
@@ -23,7 +23,7 @@
                     "ignoreFailures": true
                 }
             ],
-            "preLaunchTask": "build Poker"
+            "preLaunchTask": "build Server"
         }
     ]
 }
