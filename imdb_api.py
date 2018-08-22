@@ -3,6 +3,7 @@ from datetime import datetime
 import os
 import mimetypes
 import re
+import urllib.request
 
 API_KEY = "4ed3fc46"
 omdb.set_default('apikey', API_KEY)
@@ -24,6 +25,8 @@ def downloadTitlesFromFolder(folder: str):
     print(movieExtensions)
 
     for file in os.listdir(folder):
+        if not os.path.isfile(os.path.join(folder, file)):
+            continue
         fileExtension = re.findall(r'[.].{2,4}', file)[-1]
         if fileExtension in movieExtensions:
             title = file.replace(fileExtension, '')
@@ -36,12 +39,12 @@ def downloadTitlesFromFolder(folder: str):
 
 while running:
     movies = []
-    movieFolder = 'C:\Movies'
-    userInput = input(f"[W]pisujesz nazwy, czy mam je [P]obrać z '{movieFolder}'? : ")
+    moviesFolder = 'C:\Movies'
+    userInput = input(f"[W]pisujesz nazwy, czy mam je [P]obrać z '{moviesFolder}'? : ")
     if userInput == 'W':
         userInput = input("Podaj tytuły filmów: ")
     elif userInput == 'P':
-        userInput = downloadTitlesFromFolder(movieFolder)
+        userInput = downloadTitlesFromFolder(moviesFolder)
     else:
         continue
 
@@ -85,6 +88,14 @@ while running:
         print(f"\tPopularity(votes): {movie['imdb_votes']}")
         print(f"\tLength: {movie['runtime']}")
         print()
+
+    for movie in movies:
+        if not os.path.exists(f"{moviesFolder}/{movie['title']}"):
+            os.mkdir(f"{moviesFolder}/{movie['title']}")
+        movie_description = open(f"{moviesFolder}/{movie['title']}/opis.txt",'w')
+        movie_description.write(str(movie))
+        movie_description.close()
+        urllib.request.urlretrieve(movie['poster'],f"{moviesFolder}/{movie['title']}/poster.jpg")
 
     userInput = input("Chcesz kontynuować? ('end' konczy program): ")
     if userInput == 'end':
