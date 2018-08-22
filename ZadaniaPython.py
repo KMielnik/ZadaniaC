@@ -158,3 +158,38 @@ def validate_input(word):
 assert validate_input("Summer Academmy") == False, "Bad validation!"
 assert validate_input("Summer_Academmy") == False, "Bad validation!"
 assert validate_input("summer_academmy") == True, "Bad validation!"
+
+
+########################################################################################################################
+#                                               dodatkowe                                                              #
+########################################################################################################################
+
+
+def valid_braces(sentence):
+    '''
+    Function takes a string of braces, and determines if the order of the braces is valid.
+    It should return true if the string is valid, and false if it's invalid.
+    A string of braces is considered valid if all braces are matched with the correct brace.
+    '''
+    return sentence
+
+
+# assert valid_braces("(){}[]") == True, "Wrong answer!"
+# assert valid_braces("([{}])") == True, "Wrong answer!"
+# assert valid_braces("(}") == False, "Wrong answer!"
+# assert valid_braces("[(])") == False, "Wrong answer!"
+
+########################################################################################################################
+
+
+def parenthesis_remover(words_list):
+    result = []
+    for word in words_list:
+        cleanedWord = word
+        for parenthesis in re.findall(r'[(].*?[)]', cleanedWord):
+            cleanedWord = cleanedWord.replace(parenthesis, '')
+        result.append(cleanedWord)
+    return result
+
+
+print(parenthesis_remover(["example (.com)", "w3resource", "github (.com)", "sta(siemanko)ckoverflow (.com)"]))
