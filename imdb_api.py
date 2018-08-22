@@ -1,11 +1,11 @@
-import omdb.client
+import omdb
 from datetime import datetime
 API_KEY = "4ed3fc46"
 omdb.set_default('apikey', API_KEY)
 
 running = True
 
-while (running):
+while running:
     movies = []
     userInput = input("Podaj tytuły filmów: ")
     titleNames = userInput.split(' : ')[0]
@@ -16,7 +16,10 @@ while (running):
 
     for title in titleNames.split(', '):
         movie = omdb.get(title=title)
-        movies.append(movie)
+        if len(movie) == 0:
+            print(f"Nie znaleziono {title} w bazie.")
+        else:
+            movies.append(movie)
 
     if sortBy == 'Rating':
         print(f"Sorting by {sortBy} from best rated")
@@ -49,3 +52,4 @@ while (running):
     userInput = input("Chcesz kontynuować? ('end' konczy program): ")
     if userInput == 'end':
         running = False
+              
