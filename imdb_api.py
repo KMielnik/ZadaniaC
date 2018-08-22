@@ -1,13 +1,50 @@
 import omdb
 from datetime import datetime
+import os
+import mimetypes
+import re
+
 API_KEY = "4ed3fc46"
 omdb.set_default('apikey', API_KEY)
 
 running = True
 
+
+def downloadTitlesFromFolder(folder: str):
+    unwantedWords = ['5.1', '7.1', '5 1', '7 1', 'DUAL AUDIO', 'DUAL-AUDIO', 'MULTI-CHANNEL', 'Ita-Eng',
+                     '2160p', '4K', '1080p', '720p', '480p', '360p', 'HD', 'FULL HD', 'FULLHD',
+                     'x264', 'CH', 'X264', 'HEVC', 'WEB-DL', 'BrRip', 'Rip', 'DVDRip', 'DVD', 'XviD', 'BLURAY',
+                     'EXTENDED', 'REMASTERED', 'DIRECTORS', 'UNRATED', 'AlTERNATE']
+    movieExtensions = ['.mkv']
+    for ext in mimetypes.types_map:
+        if mimetypes.types_map[ext].split('/')[0] == 'video':
+            movieExtensions.append(ext)
+
+    titles = ''
+    print(movieExtensions)
+
+    for file in os.listdir(folder):
+        fileExtension = re.findall(r'[.].{2,4}', file)[-1]
+        if fileExtension in movieExtensions:
+            title = file.replace(fileExtension, '')
+            for word in unwantedWords:
+                title = title.replace(word, '')
+            title = title.lstrip().rstrip()
+            titles += f'{title}, '
+    return titles[:-2]
+
+
 while running:
     movies = []
-    userInput = input("Podaj tytuły filmów: ")
+    movieFolder = 'C:\Movies'
+    userInput = input(f"[W]pisujesz nazwy, czy mam je [P]obrać z '{movieFolder}'? : ")
+    if userInput == 'W':
+        userInput = input("Podaj tytuły filmów: ")
+    elif userInput == 'P':
+        userInput = downloadTitlesFromFolder(movieFolder)
+    else:
+        continue
+
     titleNames = userInput.split(' : ')[0]
     try:
         sortBy = userInput.split(' : ')[1]
@@ -31,7 +68,7 @@ while running:
 
     if sortBy == 'Date':
         print(f"Sorting by {sortBy} from newest")
-        movies.sort(key=lambda x: (datetime.strptime(x['released'],'%d %b %Y'), x), reverse=True)
+        movies.sort(key=lambda x: (datetime.strptime(x['released'], '%d %b %Y'), x), reverse=True)
 
     if sortBy == 'Popularity':
         print(f"Sorting by {sortBy} from most voted")
@@ -52,4 +89,4 @@ while running:
     userInput = input("Chcesz kontynuować? ('end' konczy program): ")
     if userInput == 'end':
         running = False
-              
+    print()
